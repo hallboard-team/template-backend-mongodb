@@ -1,0 +1,30 @@
+{
+  "name": "dev-${localWorkspaceFolderBasename}",
+  "dockerComposeFile": "./docker/docker-compose.backend-postgres.yml",
+  "service": "api-postgres",
+  "workspaceFolder": "/workspaces/app",
+  "shutdownAction": "stopCompose",
+  "updateRemoteUserUID": false,
+  "remoteEnv": {
+    "VSCODE_SERVER_DIR": "/vscode/vscode-server"
+  },
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "ms-dotnettools.csdevkit",
+        "ms-dotnettools.csharp",
+        "mtxr.sqltools",
+        "mtxr.sqltools-driver-pg",
+        "nurlybekovnt.csharpextensions",
+        "adrianwilczynski.user-secrets",
+        
+        "patcx.vscode-nuget-gallery",
+        "github.vscode-pull-request-github",
+        "maptz.regionfolder",
+        "PKief.material-icon-theme",
+        "johnpapa.vscode-peacock",
+        "Gruntfuggly.todo-tree"
+      ]
+    }
+  }
+}

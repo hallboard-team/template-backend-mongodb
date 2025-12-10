@@ -1,0 +1,45 @@
+########################################
+# Editor / IDE (user-specific)
+########################################
+
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+*.swp
+
+# Rider files (project-specific configs are allowed)
+.idea
+
+# Optional: uncomment if you DO NOT want to share launch/settings/tasks
+# .vscode/
+
+########################################
+# .NET Build Outputs
+########################################
+
+bin/
+obj/
+out/
+artifacts/
+
+# NuGet
+project.assets.json
+project.nuget.cache
+
+########################################
+# Logs & Temp
+########################################
+
+*.log
+logs/
+tmp/
+temp/
+*.pid
+
+########################################
+# OS junk
+########################################
+
+.DS_Store
+Thumbs.db

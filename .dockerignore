@@ -1,0 +1,49 @@
+########################################
+# Git
+########################################
+.git
+.gitignore
+
+########################################
+# IDE / Editor
+########################################
+.vscode/
+.idea/
+*.swp
+
+########################################
+# Build outputs (never copy these into image)
+########################################
+bin/
+obj/
+out/
+artifacts/
+
+########################################
+# User junk / logs
+########################################
+*.log
+logs/
+tmp/
+temp/
+
+########################################
+# OS Files
+########################################
+.DS_Store
+Thumbs.db
+
+########################################
+# Dev-only infra that should NOT be copied
+########################################
+
+# DevContainer configs never needed in build context
+.devcontainer/
+
+# Docker scripts/configs (only host-side)
+docker/
+
+# Docker build files inside template
+Dockerfile*
+docker-compose*
+docker-compose*
