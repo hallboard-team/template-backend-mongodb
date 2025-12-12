@@ -1,15 +1,15 @@
 #!/bin/bash
 # -----------------------------
-# Pull & Start Docker Compose for .NET + PostgreSQL backend template
+# Pull & Start Docker Compose for .NET + MongoDB backend template
 #
 # Usage:
-#   ./pull-start-backend-postgres-dev.sh [api_port] [dotnet_version] [postgres_version] [db_host_port] [db_user] [db_password] [db_name]
+#   ./pull-start-backend-mongo-dev.sh [api_port] [dotnet_version] [mongo_version] [db_host_port] [db_user] [db_password] [db_name]
 #
 # Examples:
-#   ./pull-start-backend-postgres-dev.sh
-#   ./pull-start-backend-postgres-dev.sh 5000
-#   ./pull-start-backend-postgres-dev.sh 5000 9.0
-#   ./pull-start-backend-postgres-dev.sh 5000 9.0 17 5434 user pass mydb
+#   ./pull-start-backend-mongo-dev.sh
+#   ./pull-start-backend-mongo-dev.sh 5000
+#   ./pull-start-backend-mongo-dev.sh 5000 9.0
+#   ./pull-start-backend-mongo-dev.sh 5000 9.0 17 5434 user pass mydb
 # -----------------------------
 
 set -euo pipefail
@@ -43,16 +43,16 @@ fi
 # -----------------------------
 API_PORT="${1:-${API_PORT:-5000}}"
 DOTNET_VERSION="${2:-${DOTNET_VERSION:-10.0}}"
-POSTGRES_VERSION="${3:-${POSTGRES_VERSION:-17}}"
+MONGO_VERSION="${3:-${MONGO_VERSION:-17}}"
 DB_HOST_PORT="${4:-${DB_HOST_PORT:-5433}}"
-DB_USER="${5:-${DB_USER:-backend_postgres_user}}"
-DB_PASSWORD="${6:-${DB_PASSWORD:-backend_postgres_password}}"
-DB_NAME="${7:-${DB_NAME:-backend_postgres_db}}"
+DB_USER="${5:-${DB_USER:-backend_mongo_user}}"
+DB_PASSWORD="${6:-${DB_PASSWORD:-backend_mongo_password}}"
+DB_NAME="${7:-${DB_NAME:-backend_mongo_db}}"
 
-CONTAINER_NAME="${CONTAINER_NAME:-template_backend_postgres}"
+CONTAINER_NAME="${CONTAINER_NAME:-template_backend_mongo}"
 
 IMAGE="ghcr.io/hallboard-team/dotnet-v${DOTNET_VERSION}:latest"
-COMPOSE_FILE="docker-compose.backend-postgres.yml"
+COMPOSE_FILE="docker-compose.backend-mongo.yml"
 
 API_CONTAINER_NAME="${CONTAINER_NAME}_api"
 
@@ -90,10 +90,10 @@ if ss -tuln | grep -q ":${DB_HOST_PORT} "; then
 fi
 
 echo
-echo "🚀 Starting backend-postgres template stack:"
+echo "🚀 Starting backend-mongo template stack:"
 echo "   Project:         ${CONTAINER_NAME}"
 echo "   .NET SDK:        ${DOTNET_VERSION}"
-echo "   PostgreSQL:      ${POSTGRES_VERSION}"
+echo "   MongoDB:      ${MONGO_VERSION}"
 echo "   API port:        ${API_PORT}"
 echo "   DB host port:    ${DB_HOST_PORT}"
 echo "   DB user:         ${DB_USER}"
@@ -106,7 +106,7 @@ echo
 if CONTAINER_NAME="$CONTAINER_NAME" \
    API_PORT="$API_PORT" \
    DOTNET_VERSION="$DOTNET_VERSION" \
-   POSTGRES_VERSION="$POSTGRES_VERSION" \
+   MONGO_VERSION="$MONGO_VERSION" \
    DB_HOST_PORT="$DB_HOST_PORT" \
    DB_USER="$DB_USER" \
    DB_PASSWORD="$DB_PASSWORD" \
@@ -115,7 +115,7 @@ if CONTAINER_NAME="$CONTAINER_NAME" \
 
   if docker ps --filter "name=${API_CONTAINER_NAME}" --format '{{.Names}}' | grep -q "${API_CONTAINER_NAME}"; then
     echo "✅ API container '${API_CONTAINER_NAME}' running on port ${API_PORT}"
-    echo "✅ PostgreSQL running on host port ${DB_HOST_PORT}"
+    echo "✅ MongoDB running on host port ${DB_HOST_PORT}"
   else
     echo "❌ API container '${API_CONTAINER_NAME}' did not start even though compose succeeded."
     exit 1

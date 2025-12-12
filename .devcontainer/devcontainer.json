@@ -1,7 +1,7 @@
 {
   "name": "dev-${localWorkspaceFolderBasename}",
-  "dockerComposeFile": "./docker/docker-compose.backend-postgres.yml",
-  "service": "api-postgres",
+  "dockerComposeFile": "./docker/docker-compose.backend-mongo.yml",
+  "service": "api-mongo",
   "workspaceFolder": "/workspaces/app",
   "shutdownAction": "stopCompose",
   "updateRemoteUserUID": false,
@@ -13,8 +13,6 @@
       "extensions": [
         "ms-dotnettools.csdevkit",
         "ms-dotnettools.csharp",
-        "mtxr.sqltools",
-        "mtxr.sqltools-driver-pg",
         "nurlybekovnt.csharpextensions",
         "adrianwilczynski.user-secrets",
         
