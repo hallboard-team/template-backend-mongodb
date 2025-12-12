@@ -18,7 +18,7 @@ services:
       VSCODE_SERVER_DIR: /home/vscode/.vscode-server-shared
 
       # MongoDB connection URI
-      ConnectionStrings__Default: "mongodb://root:${DB_PASSWORD:-template_backend_password}@mongo:27017/${DB_NAME:-template_backend_db}?authSource=admin"
+      ConnectionStrings__Default: "mongodb://root:${DB_PASSWORD:-template_backend_password}@mongo:27017/${DB_NAME:-template_backend_db}?authSource=admin&replicaSet=rs0&retryWrites=true&w=majority"
 
     ports:
       - "${API_PORT:-5000}:5000"
@@ -39,6 +39,12 @@ services:
 
     working_dir: /workspaces/app
 
+    command:
+      - mongod
+      - --bind_ip_all
+      - --replSet
+      - rs0
+
     environment:
       MONGO_INITDB_ROOT_USERNAME: ${DB_USER:-template_backend_user}
       MONGO_INITDB_ROOT_PASSWORD: ${DB_PASSWORD:-template_backend_password}
@@ -52,6 +58,7 @@ services:
       - ../../:/workspaces/app:Z
       - ${HOME}/.cache/vscode-server-shared:/home/vscode/.vscode-server-shared:Z
       - mongodata:/data/db:Z
+      - ../../.devcontainer/mongo/init:/docker-entrypoint-initdb.d:ro
 
     healthcheck:
       test:
