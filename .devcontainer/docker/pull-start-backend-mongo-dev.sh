@@ -43,8 +43,8 @@ fi
 # -----------------------------
 API_PORT="${1:-${API_PORT:-5000}}"
 DOTNET_VERSION="${2:-${DOTNET_VERSION:-10.0}}"
-MONGO_VERSION="${3:-${MONGO_VERSION:-17}}"
-DB_HOST_PORT="${4:-${DB_HOST_PORT:-5433}}"
+MONGO_VERSION="${3:-${MONGO_VERSION:-7.0}}"
+DB_HOST_PORT="${4:-${DB_HOST_PORT:-27018}}"
 DB_USER="${5:-${DB_USER:-backend_mongo_user}}"
 DB_PASSWORD="${6:-${DB_PASSWORD:-backend_mongo_password}}"
 DB_NAME="${7:-${DB_NAME:-backend_mongo_db}}"
@@ -54,7 +54,7 @@ CONTAINER_NAME="${CONTAINER_NAME:-template_backend_mongo}"
 IMAGE="ghcr.io/hallboard-team/dotnet-v${DOTNET_VERSION}:latest"
 COMPOSE_FILE="docker-compose.backend-mongo.yml"
 
-API_CONTAINER_NAME="${CONTAINER_NAME}_api"
+API_CONTAINER_NAME="${CONTAINER_NAME}-api_MONGO-v${MONGO_VERSION}-dev"
 
 # -----------------------------
 # Fix VS Code shared cache permissions
@@ -66,7 +66,7 @@ chown -R 1000:1000 ~/.cache/vscode-server-shared
 # -----------------------------
 # Ensure .NET SDK dev image exists
 # -----------------------------
-if docker image exists "$IMAGE"; then
+if docker image inspect "$IMAGE" >/dev/null 2>&1; then
   echo "🧱 Found dev image '$IMAGE' locally — skipping pull."
 else
   echo "📥 Pulling dev image '$IMAGE' from GHCR..."
