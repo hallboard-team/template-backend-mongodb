@@ -18,7 +18,7 @@ services:
       VSCODE_SERVER_DIR: /home/vscode/.vscode-server-shared
 
       # MongoDB connection URI
-      ConnectionStrings__Default: "mongodb://root:${DB_PASSWORD:-template_backend_password}@mongo:27017/${DB_NAME:-template_backend_db}?authSource=admin&replicaSet=rs0&retryWrites=true&w=majority"
+      ConnectionStrings__Default: "mongodb://${DB_USER:-template_backend_user}:${DB_PASSWORD:-template_backend_password}@mongo:27017/${DB_NAME:-template_backend_db}?authSource=admin&replicaSet=rs0&retryWrites=true&w=majority"
 
     ports:
       - "${API_PORT:-5000}:5000"
