@@ -51,7 +51,7 @@ DB_NAME="${7:-${DB_NAME:-backend_mongo_db}}"
 
 CONTAINER_NAME="${CONTAINER_NAME:-template_backend_mongo}"
 
-IMAGE="ghcr.io/hallboard-team/dotnet-v${DOTNET_VERSION}:latest"
+IMAGE="ghcr.io/hallboard-team/dotnet:${DOTNET_VERSION}-sdk"
 COMPOSE_FILE="docker-compose.backend-mongo.yml"
 
 API_CONTAINER_NAME="${CONTAINER_NAME}-api_MONGO-v${MONGO_VERSION}-dev"

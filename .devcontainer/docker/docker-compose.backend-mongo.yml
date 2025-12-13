@@ -2,7 +2,7 @@ x-mongo-image: &mongo_image "${MONGO_IMAGE:-ghcr.io/hallboard-team/tools:mongo-$
 
 services:
   api-mongo:
-    image: ghcr.io/hallboard-team/dotnet-v${DOTNET_VERSION:-10.0}:latest
+    image: ghcr.io/hallboard-team/dotnet:${DOTNET_VERSION:-10.0}-sdk
     container_name: ${CONTAINER_NAME:-template}-api_MONGO-v${MONGO_VERSION:-7.0}-dev
     working_dir: /workspaces/app
 
