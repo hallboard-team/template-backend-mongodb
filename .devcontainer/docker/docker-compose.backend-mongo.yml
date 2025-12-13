@@ -1,10 +1,9 @@
-version: "3.9"
+x-mongo-image: &mongo_image "${MONGO_IMAGE:-ghcr.io/hallboard-team/tools:mongo-${MONGO_VERSION:-7.0}}"
 
 services:
   api-mongo:
     image: ghcr.io/hallboard-team/dotnet-v${DOTNET_VERSION:-10.0}:latest
-    container_name: ${CONTAINER_NAME:-template}-api_MONGO-v${MONGO_VERSION:-7}-dev
-
+    container_name: ${CONTAINER_NAME:-template}-api_MONGO-v${MONGO_VERSION:-7.0}-dev
     working_dir: /workspaces/app
 
     volumes:
@@ -14,14 +13,13 @@ services:
     environment:
       ASPNETCORE_ENVIRONMENT: Development
       ASPNETCORE_URLS: http://0.0.0.0:5000
-
       VSCODE_SERVER_DIR: /home/vscode/.vscode-server-shared
 
-      # MongoDB connection URI
-      ConnectionStrings__Default: "mongodb://${DB_USER:-template_backend_user}:${DB_PASSWORD:-template_backend_password}@mongo:27017/${DB_NAME:-template_backend_db}?authSource=admin&replicaSet=rs0&retryWrites=true&w=majority"
+      # If you want auth ON (recommended), keep the user/pass in the URI:
+      ConnectionStrings__Default: "mongodb://${DB_USER:-backend_mongo_user}:${DB_PASSWORD:-backend_mongo_password}@mongo:27017/${DB_NAME:-backend_mongo_db}?authSource=admin&retryWrites=true"
 
     ports:
-      - "${API_PORT:-5000}:5000"
+      - "${API_PORT:-5002}:5000"
 
     depends_on:
       mongo:
@@ -34,41 +32,43 @@ services:
       "
 
   mongo:
-    image: ghcr.io/hallboard-team/tools:mongo-${MONGO_VERSION:-7.0}
-    container_name: ${CONTAINER_NAME:-template}_db_MONGO-v${MONGO_VERSION:-7}
-
+    image: *mongo_image
+    container_name: ${CONTAINER_NAME:-template}_db_MONGO-v${MONGO_VERSION:-7.0}
     working_dir: /workspaces/app
 
-    command:
-      - mongod
-      - --bind_ip_all
-      - --replSet
-      - rs0
 
     environment:
-      MONGO_INITDB_ROOT_USERNAME: ${DB_USER:-template_backend_user}
-      MONGO_INITDB_ROOT_PASSWORD: ${DB_PASSWORD:-template_backend_password}
-      MONGO_INITDB_DATABASE: ${DB_NAME:-template_backend_db}
-      VSCODE_SERVER_DIR: /home/vscode/.vscode-server-shared
+      MONGO_INITDB_ROOT_USERNAME: ${DB_USER:-backend_mongo_user}
+      MONGO_INITDB_ROOT_PASSWORD: ${DB_PASSWORD:-backend_mongo_password}
+      MONGO_INITDB_DATABASE: ${DB_NAME:-backend_mongo_db}
 
     ports:
       - "${DB_HOST_PORT:-27018}:27017"
 
     volumes:
-      - ../../:/workspaces/app:Z
-      - ${HOME}/.cache/vscode-server-shared:/home/vscode/.vscode-server-shared:Z
-      - mongodata:/data/db:Z
-      - ../../.devcontainer/mongo/init:/docker-entrypoint-initdb.d:ro
+      - mongodata:/data/db
+
+    tmpfs:
+      - /data/db/.vscode-server
 
     healthcheck:
       test:
         [
           "CMD-SHELL",
-          "mongosh --username ${DB_USER:-template_backend_user} --password ${DB_PASSWORD:-template_backend_password} --authenticationDatabase admin --eval 'db.runCommand({ ping: 1 })' || exit 1"
+          "mongosh --quiet --username $$MONGO_INITDB_ROOT_USERNAME --password $$MONGO_INITDB_ROOT_PASSWORD --authenticationDatabase admin --eval 'db.runCommand({ ping: 1 }).ok' | grep 1 >/dev/null"
         ]
       interval: 5s
       timeout: 3s
-      retries: 10
+      retries: 30
+
+  mongo-tools:
+    profiles: ["tools"]
+    image: *mongo_image
+    container_name: ${CONTAINER_NAME:-template}_tools_MONGO-v${MONGO_VERSION:-7.0}
+    depends_on:
+      mongo:
+        condition: service_healthy
+    entrypoint: ["bash", "-lc", "sleep infinity"]
 
 volumes:
   mongodata:

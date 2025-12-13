@@ -7,22 +7,5 @@
   "updateRemoteUserUID": false,
   "remoteEnv": {
     "VSCODE_SERVER_DIR": "/vscode/vscode-server"
-  },
-  "customizations": {
-    "vscode": {
-      "extensions": [
-        "ms-dotnettools.csdevkit",
-        "ms-dotnettools.csharp",
-        "nurlybekovnt.csharpextensions",
-        "adrianwilczynski.user-secrets",
-        "mongodb.mongodb-vscode",
-        "patcx.vscode-nuget-gallery",
-        "github.vscode-pull-request-github",
-        "maptz.regionfolder",
-        "PKief.material-icon-theme",
-        "johnpapa.vscode-peacock",
-        "Gruntfuggly.todo-tree"
-      ]
-    }
   }
 }
