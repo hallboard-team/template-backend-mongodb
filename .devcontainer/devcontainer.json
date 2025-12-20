@@ -18,6 +18,8 @@
         
         "patcx.vscode-nuget-gallery",
         "github.vscode-pull-request-github",
+        
+        "openai.chatgpt",
         "maptz.regionfolder",
         "PKief.material-icon-theme",
         "johnpapa.vscode-peacock",
