@@ -6,5 +6,5 @@
     "**/bin": true,
     "**/obj": true
   },
-  "remote.extensionKind": { "openai.chatgpt": ["ui"] }
+  "remote.extensionKind": { "openai.chatgpt": ["workspace"] }
 }
