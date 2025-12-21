@@ -5,6 +5,5 @@
   "files.exclude": {
     "**/bin": true,
     "**/obj": true
-  },
-  "remote.extensionKind": { "openai.chatgpt": ["workspace"] }
+  }
 }
