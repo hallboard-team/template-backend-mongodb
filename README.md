@@ -55,3 +55,15 @@ Create `.devcontainer/docker/.env` (optional) to override defaults used by both 
 - Initialize a new solution: `dotnet new webapi -o src/MyApi`
 - Update the compose file if your API exposes extra ports or needs other services
 - Add CI/CD workflows for building/publishing your API and container images
+
+## Troubleshooting: Docker disk space
+If the Mongo container exits with `No space left on device`, Docker's storage area (images/volumes/cache) is full. This is independent from your host disk free space.
+
+Common fixes:
+- Increase Docker's disk allocation (Docker Desktop) or ensure the Docker data root lives on a partition with enough space (Linux).
+- Prune old images/containers occasionally when you hit the limit: `docker system prune -af` (removes unused images/containers/networks).
+- Reset the Mongo data volume for a clean dev database: `docker compose -p <project> -f .devcontainer/docker/docker-compose.backend-mongo.yml down -v`
+
+Notes:
+- The `mongodata` volume grows with your local DB content and won't shrink unless removed.
+- If you keep multiple devcontainers around, expect images and build cache to accumulate over time.
