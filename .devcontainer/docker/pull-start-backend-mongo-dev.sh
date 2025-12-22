@@ -3,13 +3,13 @@
 # Pull & Start Docker Compose for .NET + MongoDB backend template
 #
 # Usage:
-#   ./pull-start-backend-mongo-dev.sh [api_port] [dotnet_version] [mongo_version] [db_host_port] [db_user] [db_password] [db_name]
+#   ./pull-start-backend-mongo-dev.sh [api_port] [dotnet_version] [mongo_version] [db_host_port] [db_user] [db_password] [db_name] [project_name]
 #
 # Examples:
 #   ./pull-start-backend-mongo-dev.sh
 #   ./pull-start-backend-mongo-dev.sh 5000
 #   ./pull-start-backend-mongo-dev.sh 5000 9.0
-#   ./pull-start-backend-mongo-dev.sh 5000 9.0 17 5434 user pass mydb
+#   ./pull-start-backend-mongo-dev.sh 5000 9.0 17 5434 user pass mydb myproject
 # -----------------------------
 
 set -euo pipefail
@@ -49,12 +49,12 @@ DB_USER="${5:-${DB_USER:-backend_mongo_user}}"
 DB_PASSWORD="${6:-${DB_PASSWORD:-backend_mongo_password}}"
 DB_NAME="${7:-${DB_NAME:-backend_mongo_db}}"
 
-CONTAINER_NAME="${CONTAINER_NAME:-template_backend_mongo}"
+COMPOSE_PROJECT_NAME="${8:-${COMPOSE_PROJECT_NAME:-${CONTAINER_NAME:-template_backend_mongo}}}"
 
 IMAGE="ghcr.io/hallboard-team/dotnet:${DOTNET_VERSION}-sdk"
 COMPOSE_FILE="docker-compose.backend-mongo.yml"
 
-API_CONTAINER_NAME="${CONTAINER_NAME}-api_MONGO-v${MONGO_VERSION}-dev"
+API_CONTAINER_NAME="${COMPOSE_PROJECT_NAME}-api_MONGO-v${MONGO_VERSION}-dev"
 
 # -----------------------------
 # Fix VS Code shared cache permissions
@@ -91,7 +91,7 @@ fi
 
 echo
 echo "🚀 Starting backend-mongo template stack:"
-echo "   Project:         ${CONTAINER_NAME}"
+echo "   Project:         ${COMPOSE_PROJECT_NAME}"
 echo "   .NET SDK:        ${DOTNET_VERSION}"
 echo "   MongoDB:      ${MONGO_VERSION}"
 echo "   API port:        ${API_PORT}"
@@ -103,7 +103,7 @@ echo
 # -----------------------------
 # Start the stack
 # -----------------------------
-if CONTAINER_NAME="$CONTAINER_NAME" \
+if COMPOSE_PROJECT_NAME="$COMPOSE_PROJECT_NAME" \
    API_PORT="$API_PORT" \
    DOTNET_VERSION="$DOTNET_VERSION" \
    MONGO_VERSION="$MONGO_VERSION" \
@@ -111,7 +111,7 @@ if CONTAINER_NAME="$CONTAINER_NAME" \
    DB_USER="$DB_USER" \
    DB_PASSWORD="$DB_PASSWORD" \
    DB_NAME="$DB_NAME" \
-   docker-compose -p "$CONTAINER_NAME" -f "$COMPOSE_FILE" up -d; then
+   docker-compose -p "$COMPOSE_PROJECT_NAME" -f "$COMPOSE_FILE" up -d; then
 
   if docker ps --filter "name=${API_CONTAINER_NAME}" --format '{{.Names}}' | grep -q "${API_CONTAINER_NAME}"; then
     echo "✅ API container '${API_CONTAINER_NAME}' running on port ${API_PORT}"

@@ -5,7 +5,7 @@ x-mongo-image: &mongo_image "${MONGO_IMAGE:-ghcr.io/hallboard-team/tools:mongo-$
 services:
   api-mongo:
     image: ghcr.io/hallboard-team/dotnet:${DOTNET_VERSION:-10.0}-sdk
-    container_name: ${CONTAINER_NAME:-template}-api_MONGO-v${MONGO_VERSION:-7.0}-dev
+    container_name: ${COMPOSE_PROJECT_NAME:-template_backend_mongo}-api_MONGO-v${MONGO_VERSION:-7.0}-dev
     working_dir: /workspaces/app
 
     volumes:
@@ -37,7 +37,7 @@ services:
 
   mongo:
     image: *mongo_image
-    container_name: ${CONTAINER_NAME:-template}_db_MONGO-v${MONGO_VERSION:-7.0}
+    container_name: ${COMPOSE_PROJECT_NAME:-template_backend_mongo}_db_MONGO-v${MONGO_VERSION:-7.0}
     working_dir: /workspaces/app
 
     environment:
@@ -67,7 +67,7 @@ services:
   mongo-tools:
     profiles: ["tools"]
     image: *mongo_image
-    container_name: ${CONTAINER_NAME:-template}_tools_MONGO-v${MONGO_VERSION:-7.0}
+    container_name: ${COMPOSE_PROJECT_NAME:-template_backend_mongo}_tools_MONGO-v${MONGO_VERSION:-7.0}
     depends_on:
       mongo:
         condition: service_healthy

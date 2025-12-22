@@ -20,7 +20,7 @@ The API container uses `ghcr.io/hallboard-team/dotnet:${DOTNET_VERSION}-sdk` so 
 ```bash
 cd .devcontainer/docker
 ./pull-start-backend-mongo-dev.sh [api_port] [dotnet_version] [mongo_version] \
-  [db_host_port] [db_user] [db_password] [db_name]
+  [db_host_port] [db_user] [db_password] [db_name] [project_name]
 ```
 The script:
 - Ensures repo ownership matches your user (required for Dev Container UID mapping)
@@ -35,7 +35,7 @@ Create `.devcontainer/docker/.env` (optional) to override defaults used by both 
 
 | Variable | Default | Purpose |
 |----------|---------|---------|
-| `CONTAINER_NAME` | `template_backend_mongo` | Compose project prefix and container naming |
+| `COMPOSE_PROJECT_NAME` | `template_backend_mongo` | Prefix for running containers, networks, and volumes |
 | `DOTNET_VERSION` | `10.0` | SDK tag -> `ghcr.io/hallboard-team/dotnet:${DOTNET_VERSION}-sdk` |
 | `MONGO_VERSION` | `7.0` | MongoDB image tag (`ghcr.io/hallboard-team/tools:mongo-${MONGO_VERSION}`) |
 | `API_PORT` | `5000` (VS Code exposes `5002`) | Host port forwarded to API container port `5000` |
