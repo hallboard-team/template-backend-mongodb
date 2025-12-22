@@ -39,6 +39,42 @@ services:
     image: *mongo_image
     container_name: ${COMPOSE_PROJECT_NAME:-template_backend_mongo}_db_MONGO-v${MONGO_VERSION:-7.0}
     working_dir: /workspaces/app
+    user: "0:0"
+    command:
+      - bash
+      - -c
+      - |
+          set -e
+          if [ ! -f /data/db/mongo-keyfile ]; then
+            head -c 32 /dev/urandom | base64 > /data/db/mongo-keyfile
+          fi
+          chmod 600 /data/db/mongo-keyfile
+          chown 999:999 /data/db/mongo-keyfile
+          if [ ! -f /data/db/.rs-initialized ]; then
+            mongod --replSet rs0 --bind_ip_all &
+            init_pid=$$!
+
+            # Wait for mongod to accept connections.
+            until mongosh --quiet --eval "db.runCommand({ ping: 1 }).ok" | grep 1 >/dev/null; do
+              sleep 1
+            done
+
+            # Initialize replica set if needed.
+            if ! mongosh --quiet --eval "rs.status().ok" | grep 1 >/dev/null; then
+              mongosh --quiet --eval "rs.initiate({_id:'rs0',members:[{_id:0,host:'127.0.0.1:27017'}]})"
+            fi
+
+            # Create admin user if missing (for healthcheck auth).
+            if ! mongosh --quiet --eval "db.getSiblingDB('admin').getUser('${DB_USER:-backend_mongo_user}') ? 1 : 0" | grep 1 >/dev/null; then
+              mongosh --quiet --eval "db.getSiblingDB('admin').createUser({user:'${DB_USER:-backend_mongo_user}',pwd:'${DB_PASSWORD:-backend_mongo_password}',roles:[{role:'root',db:'admin'}]})"
+            fi
+
+            touch /data/db/.rs-initialized
+            mongosh --quiet --eval "db.getSiblingDB('admin').shutdownServer({force:true})" || true
+            wait "$$init_pid" || true
+          fi
+
+          exec mongod --replSet rs0 --bind_ip_all --keyFile /data/db/mongo-keyfile
 
     environment:
       MONGO_INITDB_ROOT_USERNAME: ${DB_USER:-backend_mongo_user}
