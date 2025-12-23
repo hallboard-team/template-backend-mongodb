@@ -6,7 +6,8 @@
   "shutdownAction": "stopCompose",
   "updateRemoteUserUID": false,
   "remoteEnv": {
-    "VSCODE_SERVER_DIR": "/vscode/vscode-server"
+    "VSCODE_SERVER_DIR": "/vscode/vscode-server",
+    "CODEX_HOME": "/home/vscode/.codex"
   },
   "customizations": {
     "vscode": {
