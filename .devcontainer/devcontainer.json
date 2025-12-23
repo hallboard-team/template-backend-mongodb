@@ -1,5 +1,5 @@
 {
-  "name": "dev-${localWorkspaceFolderBasename}",
+  "name": "dev-${localWorkspaceFolderBasename}_back-mongo",
   "dockerComposeFile": "./docker/docker-compose.backend-mongo.yml",
   "service": "api-mongo",
   "workspaceFolder": "/workspaces/app",
