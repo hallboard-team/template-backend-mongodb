@@ -2,6 +2,10 @@
   "name": "dev-${localWorkspaceFolderBasename}_back-mongo",
   "dockerComposeFile": "./docker/docker-compose.backend-mongo.yml",
   "service": "api-mongo",
+  "runServices": [
+    "api-mongo",
+    "mongo"
+  ],
   "workspaceFolder": "/workspaces/app",
   "shutdownAction": "stopCompose",
   "updateRemoteUserUID": false,
@@ -16,10 +20,8 @@
         "ms-dotnettools.csharp",
         "nurlybekovnt.csharpextensions",
         "adrianwilczynski.user-secrets",
-        
         "patcx.vscode-nuget-gallery",
         "github.vscode-pull-request-github",
-        
         "openai.chatgpt",
         "maptz.regionfolder",
         "PKief.material-icon-theme",
