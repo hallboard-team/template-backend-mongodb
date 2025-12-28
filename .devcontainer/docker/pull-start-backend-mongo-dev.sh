@@ -3,13 +3,13 @@
 # Pull & Start Docker Compose for .NET + MongoDB backend template
 #
 # Usage:
-#   ./pull-start-backend-mongo-dev.sh [api_port] [dotnet_version] [mongo_version] [db_host_port] [db_user] [db_password] [db_name] [project_name]
+#   ./pull-start-backend-mongo-dev.sh [api_port] [dotnet_version] [db_user] [db_password] [db_name] [project_name]
 #
 # Examples:
 #   ./pull-start-backend-mongo-dev.sh
 #   ./pull-start-backend-mongo-dev.sh 5000
 #   ./pull-start-backend-mongo-dev.sh 5000 9.0
-#   ./pull-start-backend-mongo-dev.sh 5000 9.0 17 5434 user pass mydb myproject
+#   ./pull-start-backend-mongo-dev.sh 5000 9.0 mongo_user mongo_password mydb myproject
 # -----------------------------
 
 set -euo pipefail
@@ -43,18 +43,16 @@ fi
 # -----------------------------
 API_PORT="${1:-${API_PORT:-5000}}"
 DOTNET_VERSION="${2:-${DOTNET_VERSION:-10.0}}"
-MONGO_VERSION="${3:-${MONGO_VERSION:-7.0}}"
-DB_HOST_PORT="${4:-${DB_HOST_PORT:-27018}}"
-DB_USER="${5:-${DB_USER:-backend_mongo_user}}"
-DB_PASSWORD="${6:-${DB_PASSWORD:-backend_mongo_password}}"
-DB_NAME="${7:-${DB_NAME:-backend_mongo_db}}"
+DB_USER="${3:-${DB_USER:-backend_mongo_user}}"
+DB_PASSWORD="${4:-${DB_PASSWORD:-backend_mongo_password}}"
+DB_NAME="${5:-${DB_NAME:-backend_mongo_db}}"
 
-COMPOSE_PROJECT_NAME="${8:-${COMPOSE_PROJECT_NAME:-${CONTAINER_NAME:-template_backend_mongo}}}"
+COMPOSE_PROJECT_NAME="${6:-${COMPOSE_PROJECT_NAME:-${CONTAINER_NAME:-template_backend_mongo}}}"
 
 IMAGE="ghcr.io/hallboard-team/dotnet:${DOTNET_VERSION}-sdk"
 COMPOSE_FILE="docker-compose.backend-mongo.yml"
 
-API_CONTAINER_NAME="${COMPOSE_PROJECT_NAME}-api_MONGO-v${MONGO_VERSION}-dev"
+API_CONTAINER_NAME="${COMPOSE_PROJECT_NAME}-api-dev"
 
 # -----------------------------
 # Fix VS Code shared cache permissions
@@ -84,18 +82,11 @@ if ss -tuln | grep -q ":${API_PORT} "; then
   exit 1
 fi
 
-if ss -tuln | grep -q ":${DB_HOST_PORT} "; then
-  echo "⚠ DB host port ${DB_HOST_PORT} is already used."
-  exit 1
-fi
-
 echo
 echo "🚀 Starting backend-mongo template stack:"
 echo "   Project:         ${COMPOSE_PROJECT_NAME}"
 echo "   .NET SDK:        ${DOTNET_VERSION}"
-echo "   MongoDB:      ${MONGO_VERSION}"
 echo "   API port:        ${API_PORT}"
-echo "   DB host port:    ${DB_HOST_PORT}"
 echo "   DB user:         ${DB_USER}"
 echo "   DB name:         ${DB_NAME}"
 echo
@@ -106,8 +97,6 @@ echo
 if COMPOSE_PROJECT_NAME="$COMPOSE_PROJECT_NAME" \
    API_PORT="$API_PORT" \
    DOTNET_VERSION="$DOTNET_VERSION" \
-   MONGO_VERSION="$MONGO_VERSION" \
-   DB_HOST_PORT="$DB_HOST_PORT" \
    DB_USER="$DB_USER" \
    DB_PASSWORD="$DB_PASSWORD" \
    DB_NAME="$DB_NAME" \
@@ -115,7 +104,7 @@ if COMPOSE_PROJECT_NAME="$COMPOSE_PROJECT_NAME" \
 
   if docker ps --filter "name=${API_CONTAINER_NAME}" --format '{{.Names}}' | grep -q "${API_CONTAINER_NAME}"; then
     echo "✅ API container '${API_CONTAINER_NAME}' running on port ${API_PORT}"
-    echo "✅ MongoDB running on host port ${DB_HOST_PORT}"
+    echo "✅ MongoDB should be running in the shared container (see run-shared-mongo.sh)"
   else
     echo "❌ API container '${API_CONTAINER_NAME}' did not start even though compose succeeded."
     exit 1

@@ -1,11 +1,10 @@
 version: "3.9"
 
-x-mongo-image: &mongo_image "${MONGO_IMAGE:-ghcr.io/hallboard-team/tools:mongo-${MONGO_VERSION:-7.0}}"
-
 services:
   api-mongo:
     image: ghcr.io/hallboard-team/dotnet:${DOTNET_VERSION:-10.0}-sdk
-    container_name: ${COMPOSE_PROJECT_NAME:-template_backend_mongo}-api_MONGO-v${MONGO_VERSION:-7.0}-dev
+    container_name: ${COMPOSE_PROJECT_NAME:-template_backend_mongo}-api-dev
+    user: "0:0"
     working_dir: /workspaces/app
 
     volumes:
@@ -13,21 +12,23 @@ services:
       - ${HOME}/.cache/vscode-server-shared:/home/vscode/.vscode-server-shared:Z
       - ${HOME}/.cache/codex:/home/vscode/.codex:Z
 
+    env_file:
+      - ./.env
+
     environment:
       ASPNETCORE_ENVIRONMENT: Development
       ASPNETCORE_URLS: http://0.0.0.0:5000
       VSCODE_SERVER_DIR: /home/vscode/.vscode-server-shared
       CODEX_HOME: /home/vscode/.codex
 
-      # If you want auth ON (recommended), keep the user/pass in the URI:
-      ConnectionStrings__Default: "mongodb://${DB_USER:-backend_mongo_user}:${DB_PASSWORD:-backend_mongo_password}@mongo:27017/${DB_NAME:-backend_mongo_db}?authSource=admin&retryWrites=true"
+      MONGO_HOST: "mongo"
+      DB_USER: "${DB_USER:-mongo_user}"
+      DB_PASSWORD: "${DB_PASSWORD:-mongo_password}"
+      MongoDb__ConnectionString: "mongodb://${DB_USER:-mongo_user}:${DB_PASSWORD:-mongo_password}@mongo:27017/${DB_NAME:-fullstack_mongo_db}?authSource=admin&retryWrites=true&replicaSet=rs0"
+      MongoDb__DatabaseName: "${DB_NAME:-fullstack_mongo_db}"
 
     ports:
       - "${API_PORT:-5002}:5000"
-
-    depends_on:
-      mongo:
-        condition: service_healthy
 
     command: >
       bash -c "
@@ -35,87 +36,10 @@ services:
         sleep infinity
       "
 
-  mongo:
-    image: *mongo_image
-    container_name: ${COMPOSE_PROJECT_NAME:-template_backend_mongo}_db_MONGO-v${MONGO_VERSION:-7.0}
-    working_dir: /workspaces/app
-    user: "0:0"
-    command:
-      - bash
-      - -c
-      - |
-          set -e
-          if [ ! -f /data/db/mongo-keyfile ]; then
-            head -c 32 /dev/urandom | base64 > /data/db/mongo-keyfile
-          fi
-          chmod 600 /data/db/mongo-keyfile
-          chown 999:999 /data/db/mongo-keyfile
-          if [ ! -f /data/db/.rs-initialized ]; then
-            mongod --replSet rs0 --bind_ip_all &
-            init_pid=$$!
+    networks:
+      - shared-mongo-net
 
-            # Wait for mongod to accept connections.
-            until mongosh --quiet --eval "db.runCommand({ ping: 1 }).ok" | grep 1 >/dev/null; do
-              sleep 1
-            done
-
-            # Initialize replica set if needed.
-            if ! mongosh --quiet --eval "rs.status().ok" | grep 1 >/dev/null; then
-              mongosh --quiet --eval "rs.initiate({_id:'rs0',members:[{_id:0,host:'127.0.0.1:27017'}]})"
-            fi
-
-            # Create admin user if missing (for healthcheck auth).
-            if ! mongosh --quiet --eval "db.getSiblingDB('admin').getUser('${DB_USER:-backend_mongo_user}') ? 1 : 0" | grep 1 >/dev/null; then
-              mongosh --quiet --eval "db.getSiblingDB('admin').createUser({user:'${DB_USER:-backend_mongo_user}',pwd:'${DB_PASSWORD:-backend_mongo_password}',roles:[{role:'root',db:'admin'}]})"
-            fi
-
-            touch /data/db/.rs-initialized
-            mongosh --quiet --eval "db.getSiblingDB('admin').shutdownServer({force:true})" || true
-            wait "$$init_pid" || true
-          fi
-
-          exec mongod --replSet rs0 --bind_ip_all --keyFile /data/db/mongo-keyfile
-
-    environment:
-      MONGO_INITDB_ROOT_USERNAME: ${DB_USER:-backend_mongo_user}
-      MONGO_INITDB_ROOT_PASSWORD: ${DB_PASSWORD:-backend_mongo_password}
-      MONGO_INITDB_DATABASE: ${DB_NAME:-backend_mongo_db}
-
-    ports:
-      - "${DB_HOST_PORT:-27018}:27017"
-
-    volumes:
-      - mongodata:/data/db
-
-    tmpfs:
-      - /data/db/.vscode-server
-
-    healthcheck:
-      test:
-        [
-          "CMD-SHELL",
-          "mongosh --quiet --username $$MONGO_INITDB_ROOT_USERNAME --password $$MONGO_INITDB_ROOT_PASSWORD --authenticationDatabase admin --eval 'db.runCommand({ ping: 1 }).ok' | grep 1 >/dev/null"
-        ]
-      interval: 5s
-      timeout: 3s
-      retries: 30
-
-  mongo-tools:
-    profiles: ["tools"]
-    image: *mongo_image
-    container_name: ${COMPOSE_PROJECT_NAME:-template_backend_mongo}_tools_MONGO-v${MONGO_VERSION:-7.0}
-    depends_on:
-      mongo:
-        condition: service_healthy
-    entrypoint: ["bash", "-lc", "sleep infinity"]
-    working_dir: /workspaces/app
-    volumes:
-      - ../../:/workspaces/app:Z
-      - ${HOME}/.cache/vscode-server-shared:/home/vscode/.vscode-server-shared:Z
-      - ${HOME}/.cache/codex:/root/.codex:Z
-    environment:
-      VSCODE_SERVER_DIR: /home/vscode/.vscode-server-shared
-      CODEX_HOME: /root/.codex
-
-volumes:
-  mongodata:
+networks:
+  shared-mongo-net:
+    external: true
+    name: ${MONGO_NETWORK_NAME:-shared-mongo-net}

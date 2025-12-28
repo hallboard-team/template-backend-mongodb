@@ -2,9 +2,8 @@
   "name": "dev-${localWorkspaceFolderBasename}_back-mongo",
   "dockerComposeFile": "./docker/docker-compose.backend-mongo.yml",
   "service": "api-mongo",
-  "runServices": [
-    "api-mongo",
-    "mongo"
+    "runServices": [
+    "api-mongo"
   ],
   "workspaceFolder": "/workspaces/app",
   "shutdownAction": "stopCompose",
