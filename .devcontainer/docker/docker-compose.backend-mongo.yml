@@ -24,8 +24,8 @@ services:
       MONGO_HOST: "mongo"
       DB_USER: "${DB_USER:-mongo_user}"
       DB_PASSWORD: "${DB_PASSWORD:-mongo_password}"
-      MongoDb__ConnectionString: "mongodb://${DB_USER:-mongo_user}:${DB_PASSWORD:-mongo_password}@mongo:27017/${DB_NAME:-fullstack_mongo_db}?authSource=admin&retryWrites=true&replicaSet=rs0"
-      MongoDb__DatabaseName: "${DB_NAME:-fullstack_mongo_db}"
+      MongoDb__ConnectionString: "mongodb://${DB_USER:-mongo_user}:${DB_PASSWORD:-mongo_password}@mongo:27017/${COMPOSE_PROJECT_NAME:-template_backend_mongo}?authSource=admin&retryWrites=true&replicaSet=rs0"
+      MongoDb__DatabaseName: "${COMPOSE_PROJECT_NAME:-template_backend_mongo}"
 
     ports:
       - "${API_PORT:-5002}:5000"

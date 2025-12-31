@@ -3,13 +3,13 @@
 # Pull & Start Docker Compose for .NET + MongoDB backend template
 #
 # Usage:
-#   ./pull-start-backend-mongo-dev.sh [api_port] [dotnet_version] [db_user] [db_password] [db_name] [project_name]
+#   ./pull-start-backend-mongo-dev.sh [api_port] [dotnet_version] [db_user] [db_password] [project_name]
 #
 # Examples:
 #   ./pull-start-backend-mongo-dev.sh
 #   ./pull-start-backend-mongo-dev.sh 5000
 #   ./pull-start-backend-mongo-dev.sh 5000 9.0
-#   ./pull-start-backend-mongo-dev.sh 5000 9.0 mongo_user mongo_password mydb myproject
+#   ./pull-start-backend-mongo-dev.sh 5000 9.0 mongo_user mongo_password myproject
 # -----------------------------
 
 set -euo pipefail
@@ -45,9 +45,8 @@ API_PORT="${1:-${API_PORT:-5000}}"
 DOTNET_VERSION="${2:-${DOTNET_VERSION:-10.0}}"
 DB_USER="${3:-${DB_USER:-backend_mongo_user}}"
 DB_PASSWORD="${4:-${DB_PASSWORD:-backend_mongo_password}}"
-DB_NAME="${5:-${DB_NAME:-backend_mongo_db}}"
 
-COMPOSE_PROJECT_NAME="${6:-${COMPOSE_PROJECT_NAME:-${CONTAINER_NAME:-template_backend_mongo}}}"
+COMPOSE_PROJECT_NAME="${5:-${COMPOSE_PROJECT_NAME:-${CONTAINER_NAME:-template_backend_mongo}}}"
 
 IMAGE="ghcr.io/hallboard-team/dotnet:${DOTNET_VERSION}-sdk"
 COMPOSE_FILE="docker-compose.backend-mongo.yml"
@@ -88,7 +87,7 @@ echo "   Project:         ${COMPOSE_PROJECT_NAME}"
 echo "   .NET SDK:        ${DOTNET_VERSION}"
 echo "   API port:        ${API_PORT}"
 echo "   DB user:         ${DB_USER}"
-echo "   DB name:         ${DB_NAME}"
+echo "   DB name:         ${COMPOSE_PROJECT_NAME}"
 echo
 
 # -----------------------------
@@ -99,7 +98,6 @@ if COMPOSE_PROJECT_NAME="$COMPOSE_PROJECT_NAME" \
    DOTNET_VERSION="$DOTNET_VERSION" \
    DB_USER="$DB_USER" \
    DB_PASSWORD="$DB_PASSWORD" \
-   DB_NAME="$DB_NAME" \
    docker-compose -p "$COMPOSE_PROJECT_NAME" -f "$COMPOSE_FILE" up -d; then
 
   if docker ps --filter "name=${API_CONTAINER_NAME}" --format '{{.Names}}' | grep -q "${API_CONTAINER_NAME}"; then

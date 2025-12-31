@@ -24,7 +24,7 @@ The API container uses `ghcr.io/hallboard-team/dotnet:${DOTNET_VERSION}-sdk` so 
 ```bash
 cd .devcontainer/docker
 ./pull-start-backend-mongo-dev.sh [api_port] [dotnet_version] [db_user] \
-  [db_password] [db_name] [project_name]
+  [db_password] [project_name]
 ```
 The script:
 - Ensures repo ownership matches your user (required for Dev Container UID mapping)
@@ -39,7 +39,7 @@ Create `.devcontainer/docker/.env` (optional) to override defaults used by both 
 
 | Variable | Default | Purpose |
 |----------|---------|---------|
-| `COMPOSE_PROJECT_NAME` | `template_backend_mongo` | Prefix for running containers, networks, and volumes |
+| `COMPOSE_PROJECT_NAME` | `template_backend_mongo` | Prefix for running containers, networks, and volumes; also used as the MongoDB database name |
 | `DOTNET_VERSION` | `10.0` | SDK tag -> `ghcr.io/hallboard-team/dotnet:${DOTNET_VERSION}-sdk` |
 | `API_PORT` | `5000` (VS Code exposes `5002`) | Host port forwarded to API container port `5000` |
 | `MONGO_VERSION` | `7.0` | MongoDB image tag used by `run-shared-mongo.sh` |
@@ -47,7 +47,6 @@ Create `.devcontainer/docker/.env` (optional) to override defaults used by both 
 | `MONGO_NETWORK_NAME` | `shared-mongo-net` | External Docker network that the API container joins |
 | `DB_USER` | `mongo_user` | MongoDB root username |
 | `DB_PASSWORD` | `mongo_password` | MongoDB root password |
-| `DB_NAME` | `fullstack_mongo_db` | Default database created at startup |
 
 > Inside the container the API listens on `http://0.0.0.0:5000`. Adjust `ASPNETCORE_URLS` in the compose file if you need HTTPS or additional bindings.
 
