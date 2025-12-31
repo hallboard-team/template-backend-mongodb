@@ -3,7 +3,7 @@ using MongoDB.Driver;
 
 var builder = WebApplication.CreateBuilder(args);
 
-var mongoSettings = builder.Configuration.GetSection("MongoDb").Get<MyMongoDbSettings>()
+var mongoSettings = builder.Configuration.GetSection(nameof(MyMongoDbSettings)).Get<MyMongoDbSettings>()
     ?? throw new InvalidOperationException("MongoDb settings are missing.");
 if (string.IsNullOrWhiteSpace(mongoSettings.ConnectionString) ||
     string.IsNullOrWhiteSpace(mongoSettings.DatabaseName))
